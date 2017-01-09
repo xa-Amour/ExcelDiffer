@@ -1,0 +1,22 @@
+<!doctype html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	
+	<title>{% block title %}Zing{% endblock %}</title>
+	<link rel=stylesheet type=text/css href="/static/style.css">
+	{% block script %}{% endblock %}
+</head>
+
+
+<body>
+	<div class=page  style="width:70%">
+	  {% if request.session.user %}
+	  	欢迎光临： {{request.session.user.nickname}}   <a href='/logout/'>登出</a>
+	  {% endif %}
+	 
+	  {% block body %}{% endblock %}
+	  
+	
+	</div>
+
+</body>
