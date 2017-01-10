@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.http import StreamingHttpResponse
 import os
 from ExcelDiffer.settings import BASE_DIR
-from svr import  differ
+from svr import  differ,util
+from models import History
 import datetime
 import logging
 
@@ -13,9 +15,22 @@ def index(request):
     logger.debug("request for index")
     return render(request,'index.html')
 
+def listHistory(request):
+    logger.debug("request for listHistory")
+    his = History.objects.all()
+    return render(request,'history.html',{'his':his})
 
-def getReport(request):  
-    
+def getHistoryReport(request,hid):
+    logger.debug("request for getHistoryReport: %s"%(hid))
+    h = History.objects.get(id=int(hid))
+    if h:
+        report = util.loadReport(h.name)
+        return JsonResponse(report)
+    else:
+        return JsonResponse({'status':'error','msg':'no such report'})
+
+
+def diff(request):  
     if request.method == "POST":
         try:   
             excel_old = request.FILES.get("excel_old", None)
@@ -28,8 +43,8 @@ def getReport(request):
             if e_old not in ('.xls','.xlsx') or e_new not in ('.xls','.xlsx'):
                 logger.warn("the input is not correct")  
                 return JsonResponse({'status':'error','msg':"please upload the excel!"})
-            uploadPath = os.path.join(BASE_DIR,"upload",
-                            '_'.join([f_old,f_new,datetime.datetime.now().strftime('%y%m%d%H%M')]))
+            shortName = '_'.join([f_old,f_new,datetime.datetime.now().strftime('%y%m%d%H%M%S')]) 
+            uploadPath = os.path.join(BASE_DIR,"upload",shortName)
             os.mkdir(uploadPath)
             path_old = os.path.join(uploadPath,excel_old.name)
             path_new = os.path.join(uploadPath,excel_new.name)
@@ -51,18 +66,13 @@ def getReport(request):
         #do differ
         try:
             report = differ.excelDiffer(path_old,path_new)
-            brief = '<h2>diff结果简报</h2></br>'
-            A,D,E = len(report['A']),len(report['D']),len(report['E'])
-            brief += '共增加sheet： %d 个，删除sheet： %d 个，修改sheet： %d 个</br>'%(A,D,E)
-            for esheet in report['E']:
-                ebrief = ''
-                sheet_name,A_row,D_row,A_col,D_col,cell = esheet['sheet_name'],\
-                    len(esheet['edit_path']['A_row']),len(esheet['edit_path']['D_row']),\
-                    len(esheet['edit_path']['A_col']),len(esheet['edit_path']['D_col']),\
-                    len(esheet['edit_path']['cell'])
-                ebrief += '%s 表：增加 %d行，删除 %d行，增加 %d列，删除 %d列，修改 %d个单元格</br>'%(str(sheet_name),A_row,D_row,A_col,D_col,cell)
-            brief += ebrief
-            return JsonResponse({'status':'success','report':report,'brief':brief}) 
+            brief = util.getBriefReport(report)
+            util.saveReport(shortName,{'status':'success','report':report,'brief':brief})
+            util.make_zip(shortName)
+            h = History(name = shortName)
+            h.save()
+            hid = History.objects.get(name = shortName).id
+            return JsonResponse({'status':'success','report':report,'brief':brief,'hid':hid}) 
         except Exception as e:
             logger.error("error when diff: %s"%(e))
             return JsonResponse({'status':'error','msg':'error while diff'})
@@ -70,4 +80,24 @@ def getReport(request):
     else:
         logger.warn("getReport is a post api")
         return JsonResponse({'res':'this is a post api'}) 
+    
+def downloadReport(request,hid):
+    logger.debug("request for downloadReport: %s"%(hid))
+    h = History.objects.get(id=int(hid))
+    if not h:
+        return JsonResponse({'status':'error','msg':'no such report'})
+        
+    def file_iterator(file_name, chunk_size=512):
+        with open(file_name) as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+    the_file_name = os.path.join(BASE_DIR,"upload",h.name+'.zip')
+    response = StreamingHttpResponse(file_iterator(the_file_name))
+    response['Content-Type'] = 'application/octet-stream'
+    response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name)
+    return response
      

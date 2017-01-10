@@ -29,7 +29,7 @@ SECRET_KEY = 'm*sr+_cg*k7pri3ixb0fg5u%2_1vv#4qi^w#=g_+y74+3qi7x('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['www.zing.ac.cn','127.0.0.1','localhost']
 
 
 # Application definition
@@ -111,7 +111,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format': '%(levelname)s %(asctime)s %(pathname)s %(filename)s %(module)s %(funcName)s %(lineno)d: %(message)s'
+            'format': '[%(levelname)s] %(asctime)s %(pathname)s %(filename)s %(module)s %(funcName)s %(lineno)d: %(message)s'
         },
     },
     'handlers': {

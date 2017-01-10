@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#-*- coding: UTF-8 -*- 
 import xlrd
 import xlutils.copy
 import logging

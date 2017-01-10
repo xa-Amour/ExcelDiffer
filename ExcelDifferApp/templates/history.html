@@ -1,0 +1,79 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+{% extends "layout.html" %}
+{% block title %}History Report{% endblock %}
+
+{% block script %}
+	<script src="http://apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script>
+	    	$.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+	    	
+	    	function syntaxHighlight(json) {
+	    	    if (typeof json != 'string') {
+	    	        json = JSON.stringify(json, undefined, 2);
+	    	    }
+	    	    json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+	    	    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+	    	        var cls = 'number';
+	    	        if (/^"/.test(match)) {
+	    	            if (/:$/.test(match)) {
+	    	                cls = 'key';
+	    	            } else {
+	    	                cls = 'string';
+	    	            }
+	    	        } else if (/true|false/.test(match)) {
+	    	            cls = 'boolean';
+	    	        } else if (/null/.test(match)) {
+	    	            cls = 'null';
+	    	        }
+	    	        return '<span class="' + cls + '">' + match + '</span>';
+	    	    });
+	    	}
+	    	   	
+	    function getHistoryReport(hid) {
+             $('#result').html('报告生成中...');
+
+             $.ajax({
+                 url: "/getHistoryReport/"+hid,
+                 type: "GET",
+                 
+                 success: function (data) {
+                     if (data.status == "success") {	 	
+                     	$('#result').html(syntaxHighlight(data.report));
+                     	$('#brief').html(data.brief);
+                     }
+                     if (data.status == "error") {
+                     	$('#result').html(data.msg);
+                     }
+                 },
+                 error: function () {
+                 	$('#result').html("fail！");
+                 }
+             });
+          }
+
+	    
+    </script>
+{% endblock %}
+
+{% block body %}
+	<p style="text-align:right"><a href='/' style="text-align:right">返回</a></p>
+	<h1>历史记录</h1>
+	<table border="1">
+		{% for h in his %}
+		<tr>
+			<td>{{h.id}}</td>
+			<td><a href='#' onclick="getHistoryReport('{{h.id}}')">{{h.name}}</a></td>
+			<td><a href="/downloadReport/{{h.id}}">下载报告</a></td>
+		</tr>
+		{% endfor %}
+	</table>
+	
+	<p><span id='brief'></span></p> 
+   	<p><pre id='result'></pre></p>
+   	
+   	
+   	
+   	
+   	
+
+{% endblock %}

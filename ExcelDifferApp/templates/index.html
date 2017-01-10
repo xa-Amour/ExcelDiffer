@@ -6,7 +6,7 @@
 	<script src="http://apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js"></script>
     <script>
 	    	$.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
-	    	
+	    	//fomat json
 	    	function syntaxHighlight(json) {
 	    	    if (typeof json != 'string') {
 	    	        json = JSON.stringify(json, undefined, 2);
@@ -28,14 +28,15 @@
 	    	        return '<span class="' + cls + '">' + match + '</span>';
 	    	    });
 	    	}
-	    	   	
-	    function getReport() {
+	    	
+	    	//post get report
+	    function diff() {
              var formData = new FormData();
              formData.append("excel_old", document.getElementById("excel_old").files[0]);
              formData.append("excel_new", document.getElementById("excel_new").files[0]); 
              $('#result').html('上传中...');
              $.ajax({
-                 url: "/getReport/",
+                 url: "/diff/",
                  type: "POST",
                  data: formData,
                  contentType: false,
@@ -45,6 +46,8 @@
                      if (data.status == "success") {	 	
                      	$('#result').html(syntaxHighlight(data.report));
                      	$('#brief').html(data.brief);
+                     	var url = '/downloadReport/'+data.hid;
+                     	$('#dl').attr('href',url).show();
                      }
                      if (data.status == "error") {
                      	$('#result').html(data.msg);
@@ -56,7 +59,8 @@
              });
           }
 
-	    
+
+		
     </script>
 {% endblock %}
 
@@ -64,17 +68,46 @@
 	<h1>欢迎使用ExcelDiffer</h1>
 	<form enctype="multipart/form-data" action="/getReport/" method="post">  
 		{% csrf_token %}
-   		原excel<input type="file" id="excel_old" />  
+		<table>
+   		<tr><td>old_excel</td> <td><input type="file" id="excel_old" /></td> </tr> 
+   		<tr><td>new_excel</td> <td><input type="file" id="excel_new" /></td></tr>
+   		<tr><td></td> <td><p style="text-align:center"><input type="button" id="upload" onclick="diff()" value="对  比"/></p></td></tr>  
+   		</table> 
    		<br/> 
-   		新excel<input type="file" id="excel_new" />  
-   		<br/> 
-   		<input type="button" id="upload" onclick="getReport()" value="upload"/> 
+   		
    	</form>
-   	<p><span id='brief'></span></p> 
+   	<p><span id='brief'></span></p>
+   	<p><a id='dl' style="display:none">下载完整报告</a></p> 
    	<p><pre id='result'></pre></p>
-   	<input type="button" id="download" onclick="downReport()" value="downReport"/> 
+   	<p><a href='/listHistory/'>查看历史记录</a></p>
    	
    	
+   	
+   	<script>
+		//<a id ="download" href="#">下载报告</a>
+		function fake_click(obj) {
+		    var ev = document.createEvent("MouseEvents");
+		    ev.initMouseEvent(
+		        "click", true, false, window, 0, 0, 0, 0, 0
+		        , false, false, false, false, 0, null
+		        );
+		    obj.dispatchEvent(ev);
+		}
+	
+		function export_raw(name, data) {
+		   var urlObject = window.URL || window.webkitURL || window;
+		   var export_blob = new Blob([data]);
+		   var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
+		   save_link.href = urlObject.createObjectURL(export_blob);
+		   save_link.download = name;
+		   fake_click(save_link);
+		}
+		
+		$('#download').click(function() {
+			var test=document.getElementsByTagName('html')[0].outerHTML;
+			export_raw('report.html', test);
+		});
+   	</script>
    	
 
 {% endblock %}

@@ -1,9 +1,10 @@
-#-*-conding:utf-8-*- 
+#-*- coding: UTF-8 -*- 
 
 import reader
 import logging
 
 logger = logging.getLogger(__name__)
+THRESHOLD = 0.5
 
 def fuzzyComp(list_old,list_new):
     '''
@@ -25,7 +26,7 @@ def fuzzyComp(list_old,list_new):
             else:
                 dp[i][j] = min(dp[i-1][j-1]+1,dp[i][j-1]+1,dp[i-1][j]+1) 
 
-    return True if dp[-1][-1]<=len(list_old)/2 else False
+    return True if dp[-1][-1]<=len(list_old)*THRESHOLD else False
 
 
 
@@ -137,9 +138,11 @@ def excelDiffer(excel_old,excel_new):
         #sheetReport = [sheetName,diffPath,sheet_old(fat),sheet_new(fat)]
         sheetReport['old_data'] = sheet_old
         sheetReport['new_data'] = sheet_new
-
-            
+        
     return finalReport
+
+
+
 
 
 if __name__ =="__main__": 

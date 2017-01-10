@@ -18,6 +18,9 @@ from ExcelDifferApp import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^getReport/',views.getReport, name='getReport'),
+    url(r'^listHistory/', views.listHistory, name='listHistory'),
+    url(r'^getHistoryReport/(\d+)', views.getHistoryReport, name='getHistoryReport'),
+    url(r'^downloadReport/(\d+)', views.downloadReport, name='downloadReport'),
+    url(r'^diff/',views.diff, name='diff'),
     url(r'^admin/', include(admin.site.urls)),
 ]
