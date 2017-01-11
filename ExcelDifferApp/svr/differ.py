@@ -146,5 +146,5 @@ def excelDiffer(excel_old,excel_new):
 
 
 if __name__ =="__main__": 
-    res = excelDiffer("oldexcel1.xlsx","newexcel1.xlsx")
+    res = excelDiffer("upload/test1.xlsx","upload/test2.xlsx")
     print  res['E'][0]['edit_path']

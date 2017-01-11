@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#-*- coding: UTF-8 -*- 
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import StreamingHttpResponse
@@ -98,6 +98,6 @@ def downloadReport(request,hid):
     the_file_name = os.path.join(BASE_DIR,"upload",h.name+'.zip')
     response = StreamingHttpResponse(file_iterator(the_file_name))
     response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name)
+    response['Content-Disposition'] = 'attachment;filename="{0}"'.format((h.name+'.zip').encode('utf-8'))
     return response
      

@@ -23,7 +23,8 @@ def excelReader(excel_path):
         rowData = []
         for row in range(nrows):
             rowData.append(sheet.row_values(row))
-        datas[sheet_name] = rowData
+        if rowData:
+            datas[sheet_name] = rowData
     return datas
         
 #demo, no use in this project

@@ -65,49 +65,21 @@
 {% endblock %}
 
 {% block body %}
-	<h1>欢迎使用ExcelDiffer</h1>
+	<center><h1>欢迎使用  ExcelDiffer</h1></center>
 	<form enctype="multipart/form-data" action="/getReport/" method="post">  
 		{% csrf_token %}
-		<table>
-   		<tr><td>old_excel</td> <td><input type="file" id="excel_old" /></td> </tr> 
-   		<tr><td>new_excel</td> <td><input type="file" id="excel_new" /></td></tr>
-   		<tr><td></td> <td><p style="text-align:center"><input type="button" id="upload" onclick="diff()" value="对  比"/></p></td></tr>  
-   		</table> 
-   		<br/> 
-   		
+		<center>
+			<table border="1">
+		   		<tr><td>From</td> <td><input type="file" id="excel_old" /></td>
+		   		<td></td> <td>To</td> <td><input type="file" id="excel_new" /></td>
+		   		<td></td> <td><p style="text-align:center"><input type="button" id="upload" onclick="diff()" value="对  比"/></p></td></tr>  
+	   		</table>
+   		</center> 
+   		<br/> 		
    	</form>
-   	<p><span id='brief'></span></p>
    	<p><a id='dl' style="display:none">下载完整报告</a></p> 
+   	<p><span id='brief'></span></p>
    	<p><pre id='result'></pre></p>
    	<p><a href='/listHistory/'>查看历史记录</a></p>
-   	
-   	
-   	
-   	<script>
-		//<a id ="download" href="#">下载报告</a>
-		function fake_click(obj) {
-		    var ev = document.createEvent("MouseEvents");
-		    ev.initMouseEvent(
-		        "click", true, false, window, 0, 0, 0, 0, 0
-		        , false, false, false, false, 0, null
-		        );
-		    obj.dispatchEvent(ev);
-		}
-	
-		function export_raw(name, data) {
-		   var urlObject = window.URL || window.webkitURL || window;
-		   var export_blob = new Blob([data]);
-		   var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
-		   save_link.href = urlObject.createObjectURL(export_blob);
-		   save_link.download = name;
-		   fake_click(save_link);
-		}
-		
-		$('#download').click(function() {
-			var test=document.getElementsByTagName('html')[0].outerHTML;
-			export_raw('report.html', test);
-		});
-   	</script>
-   	
 
 {% endblock %}

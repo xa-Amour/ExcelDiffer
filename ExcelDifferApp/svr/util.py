@@ -4,8 +4,11 @@ from ExcelDiffer.settings import BASE_DIR
 import json
 import zipfile
 import logging
+import shutil
 
 logger = logging.getLogger(__name__) 
+htmlPath = os.path.join(BASE_DIR,"ExcelDifferApp","templates","report.html")
+cssPath = os.path.join(BASE_DIR,"ExcelDifferApp","static","style.css")
 
 def getBriefReport(report):
     brief = '<h2>diff结果简报</h2></br>'
@@ -22,12 +25,15 @@ def getBriefReport(report):
     return brief
 
 def saveReport(shortName,report):
-    with open(os.path.join(BASE_DIR,"upload",shortName,'report.tmp'),'w') as f:
-        f.write(json.dumps(report))
+    targetPath=os.path.join(BASE_DIR,"upload",shortName)
+    shutil.copyfile(htmlPath, os.path.join(targetPath,shortName+'.html'))
+    shutil.copyfile(cssPath, os.path.join(targetPath,'style.css'))
+    with open(os.path.join(targetPath,'report.json'),'w') as f:
+        f.write("fun("+json.dumps(report)+")")
         
 def loadReport(shortName):
-    with open(os.path.join(BASE_DIR,"upload",shortName,'report.tmp'),'r') as f:
-        report = json.loads(f.read())
+    with open(os.path.join(BASE_DIR,"upload",shortName,'report.json'),'r') as f:
+        report = json.loads(f.read()[4:-1])
         return report
 
 def make_zip(shortName):
