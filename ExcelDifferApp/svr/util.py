@@ -21,7 +21,9 @@ def getBriefReport(report):
             len(esheet['edit_path']['A_row']),len(esheet['edit_path']['D_row']),\
             len(esheet['edit_path']['A_col']),len(esheet['edit_path']['D_col']),\
             len(esheet['edit_path']['cell'])
-        ebrief += '%s 表：增加 %d行，删除 %d行，增加 %d列，删除 %d列，修改 %d个单元格</br>'%(str(sheet_name),A_row,D_row,A_col,D_col,cell)
+        print sheet_name
+        ebrief += '%s 表：增加 %d行，删除 %d行，增加 %d列，删除 %d列，修改 %d个单元格</br>'%(sheet_name.encode('UTF-8'),A_row,D_row,A_col,D_col,cell)
+        print ebrief
         brief += ebrief
     return brief
 

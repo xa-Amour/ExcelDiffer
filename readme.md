@@ -15,7 +15,7 @@
 
 ## use:  
 
-*  运行exe即可。同时你也可以通过浏览器访问已经启动的[本机服务](http://localhost:8888/)，或访[我的云服务器](http://www.zing.ac.cn)。   
+*  运行exe即可。同时你也可以通过浏览器访问已经启动的[本机服务](http://localhost:5423/)，或访[我的云服务器](http://www.zing.ac.cn:8888)。   
 
 * 从源码运行。通过github（暂时设为私有仓库）获取源码，使用`python path/to/ExcelDiffer/manage.py runserver`启动django服务，或者通过`python path/to/ExcelDifferApp/svr/differ oldpath newpath`直接从命令行调用对比算法。  
 
