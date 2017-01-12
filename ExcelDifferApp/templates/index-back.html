@@ -1,13 +1,12 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 {% extends "layout.html" %}
-{% block title %}History Report{% endblock %}
+{% block title %}ExcelDiff{% endblock %}
 
 {% block script %}
 	<script src="http://apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js"></script>
-	<script src="../../static/bundle.js"></script>
     <script>
 	    	$.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
-	    	
+	    	//fomat json
 	    	function syntaxHighlight(json) {
 	    	    if (typeof json != 'string') {
 	    	        json = JSON.stringify(json, undefined, 2);
@@ -30,42 +29,25 @@
 	    	    });
 	    	}
 	    	
-	    	
-	    	var allData = null;
-	        function getData(index) {
-	          //index = 0: Add; index = 1: delete; index = 2: modify
-	          switch(index){
-	            case 0:
-	              return allData.A;
-	            case 1:
-	              return allData.D;
-	            case 2:
-	              return allData.E;
-	            default:
-	              return [];
-	          }
-	        }
-
-	        function changeData(index) {
-	          var newList = getData(index);
-	          window.renderData(newList, changeData);
-	        }
-	    	   	
-	    function getHistoryReport(hid) {
-             $('#result').html('报告生成中...');
-
+	    	//post get report
+	    function diff() {
+             var formData = new FormData();
+             formData.append("excel_old", document.getElementById("excel_old").files[0]);
+             formData.append("excel_new", document.getElementById("excel_new").files[0]); 
+             $('#result').html('上传中...');
              $.ajax({
-                 url: "/getHistoryReport/"+hid,
-                 type: "GET",
+                 url: "/diff/",
+                 type: "POST",
+                 data: formData,
+                 contentType: false,
+                 processData: false,
                  
                  success: function (data) {
                      if (data.status == "success") {	 	
-                     	//$('#result').html(syntaxHighlight(data.result));
+                     	$('#result').html(syntaxHighlight(data.report));
                      	$('#brief').html(data.brief);
                      	var url = '/downloadReport/'+data.hid;
-                        $('#dl').attr('href',url).show();
-                        allData = data.result;
-                      	window.renderData(data.result.A,changeData);
+                     	$('#dl').attr('href',url).show();
                      }
                      if (data.status == "error") {
                      	$('#result').html(data.msg);
@@ -77,31 +59,27 @@
              });
           }
 
-	    
+
+		
     </script>
 {% endblock %}
 
 {% block body %}
-	<p style="text-align:right"><a href='/' style="text-align:right">返回</a></p>
-	<h1>历史记录</h1>
-	<table border="1">
-		{% for h in his %}
-		<tr>
-			<td>{{h.id}}</td>
-			<td><a href='#' onclick="getHistoryReport('{{h.id}}')">{{h.name}}</a></td>
-			<td><a href="/downloadReport/{{h.id}}">下载报告</a></td>
-		</tr>
-		{% endfor %}
-	</table>
-	</br>
-	<p><span id='brief'></span></p> 
-	<p><a id='dl' style="display:none">下载完整报告</a></p> 
-   	<!--  <p><pre id='result'></pre></p> -->
-   	<div id="app"></div>
-   	
-   	
-   	
-   	
-   	
+	<center><h1>欢迎使用  ExcelDiffer</h1></center>
+	<form enctype="multipart/form-data" action="/getReport/" method="post">  
+		{% csrf_token %}
+		<center>
+			<table border="1">
+		   		<tr><td>From</td> <td><input type="file" id="excel_old" /></td>
+		   		<td></td> <td>To</td> <td><input type="file" id="excel_new" /></td>
+		   		<td></td> <td><p style="text-align:center"><input type="button" id="upload" onclick="diff()" value="对  比"/></p></td></tr>  
+	   		</table>
+   		</center> 
+   		<br/> 		
+   	</form>
+   	<p><a id='dl' style="display:none">下载完整报告</a></p> 
+   	<p><span id='brief'></span></p>
+   	<p><pre id='result'></pre></p>
+   	<p><a href='/listHistory/'>查看历史记录</a></p>
 
 {% endblock %}

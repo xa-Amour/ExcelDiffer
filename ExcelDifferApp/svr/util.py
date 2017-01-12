@@ -9,6 +9,7 @@ import shutil
 logger = logging.getLogger(__name__) 
 htmlPath = os.path.join(BASE_DIR,"ExcelDifferApp","templates","report.html")
 cssPath = os.path.join(BASE_DIR,"ExcelDifferApp","static","style.css")
+jsPath = os.path.join(BASE_DIR,"ExcelDifferApp","static","bundle.js")
 
 def getBriefReport(report):
     brief = '<h2>diff结果简报</h2></br>'
@@ -26,10 +27,15 @@ def getBriefReport(report):
 
 def saveReport(shortName,report):
     targetPath=os.path.join(BASE_DIR,"upload",shortName)
+    #copy local html css js
     shutil.copyfile(htmlPath, os.path.join(targetPath,shortName+'.html'))
     shutil.copyfile(cssPath, os.path.join(targetPath,'style.css'))
+    shutil.copyfile(jsPath, os.path.join(targetPath,'bundle.js'))
+    #save report
     with open(os.path.join(targetPath,'report.json'),'w') as f:
         f.write("fun("+json.dumps(report)+")")
+    #zip report
+    make_zip(shortName)
         
 def loadReport(shortName):
     with open(os.path.join(BASE_DIR,"upload",shortName,'report.json'),'r') as f:

@@ -15,6 +15,7 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from ExcelDifferApp import views
+import settings
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -23,4 +24,5 @@ urlpatterns = [
     url(r'^downloadReport/(\d+)', views.downloadReport, name='downloadReport'),
     url(r'^diff/',views.diff, name='diff'),
     url(r'^admin/', include(admin.site.urls)),
+    url( r'^static/(?P<path>.*)$', 'django.views.static.serve',{ 'document_root': settings.STATIC_URL }), 
 ]

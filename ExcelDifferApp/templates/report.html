@@ -4,17 +4,39 @@
 	
 	<title>ExcelDiff</title>
 	<link rel=stylesheet type=text/css href="./style.css">
+	<script src="./bundle.js"></script>
 	
 	<script src="http://apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js"></script>
     <script>
 	    	//$.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+	    	var allData = null;
+        function getData(index) {
+          //index = 0: Add; index = 1: delete; index = 2: modify
+          switch(index){
+            case 0:
+              return allData.A;
+            case 1:
+              return allData.D;
+            case 2:
+              return allData.E;
+            default:
+              return [];
+          }
+        }
+
+        function changeData(index) {
+          var newList = getData(index);
+          window.renderData(newList, changeData);
+        }
 	    	//fomat json
 	    	function fun(data){
 	    		if (data.status == "success") {	 	
-                     	$('#result').html(syntaxHighlight(data.report));
+                     	//$('#result').html(syntaxHighlight(data.result));
                      	$('#brief').html(data.brief);
-                     	var url = '/downloadReport/'+data.hid;
-                     	$('#dl').attr('href',url).show();
+                     	//var url = '/downloadReport/'+data.hid;
+                     	//$('#dl').attr('href',url).show();
+                     	allData = data.result;
+                        window.renderData(data.result.A,changeData);
                      }
                      if (data.status == "error") {
                      	$('#result').html(data.msg);
@@ -52,8 +74,8 @@
 	<center><h1><a href="http://www.zing.ac.cn:8888">欢迎使用  ExcelDiffer</a></h1></center>
 	
    	<p><span id='brief'></span></p>
-   	<p><pre id='result'></pre></p>
-   	
+   	<!--  <p><pre id='result'></pre></p>-->
+   	<div id="app"></div>
 	</div>
 	<script type="text/javascript" src="./report.json"></script>
 

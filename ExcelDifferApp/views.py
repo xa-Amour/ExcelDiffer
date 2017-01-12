@@ -35,6 +35,7 @@ def diff(request):
         try:   
             excel_old = request.FILES.get("excel_old", None)
             excel_new = request.FILES.get("excel_new", None)
+            #check if files are correct
             if not excel_old or not excel_new:
                 logger.warn("the input is not correct")  
                 return JsonResponse({'status':'error','msg':"no files for upload!"})
@@ -43,14 +44,15 @@ def diff(request):
             if e_old not in ('.xls','.xlsx') or e_new not in ('.xls','.xlsx'):
                 logger.warn("the input is not correct")  
                 return JsonResponse({'status':'error','msg':"please upload the excel!"})
+            
+            #upload two files to server
             shortName = '_'.join([f_old,f_new,datetime.datetime.now().strftime('%y%m%d%H%M%S')]) 
             uploadPath = os.path.join(BASE_DIR,"upload",shortName)
             os.mkdir(uploadPath)
             path_old = os.path.join(uploadPath,excel_old.name)
             path_new = os.path.join(uploadPath,excel_new.name)
             logger.debug("upload:%s and %s"%(excel_old.name,excel_new.name))
-        
-            #upload excel-old  
+            #upload excel-new
             dest_excel_old = open(path_old,'wb+')
             for chunk in excel_old.chunks():
                 dest_excel_old.write(chunk)  
@@ -63,16 +65,17 @@ def diff(request):
         except Exception as e:
             logger.error("error when uploading: %s"%(e))
             return JsonResponse({'status':'error','msg':e})
-        #do differ
+        
         try:
+            #do diff
             report = differ.excelDiffer(path_old,path_new)
             brief = util.getBriefReport(report)
-            util.saveReport(shortName,{'status':'success','report':report,'brief':brief})
-            util.make_zip(shortName)
-            h = History(name = shortName)
-            h.save()
+            #save history to db
+            History(name = shortName).save()
             hid = History.objects.get(name = shortName).id
-            return JsonResponse({'status':'success','report':report,'brief':brief,'hid':hid}) 
+            #save report
+            util.saveReport(shortName,{'status':'success','result':report,'brief':brief,'hid':hid})
+            return JsonResponse({'status':'success','result':report,'brief':brief,'hid':hid}) 
         except Exception as e:
             logger.error("error when diff: %s"%(e))
             return JsonResponse({'status':'error','msg':'error while diff'})
@@ -86,7 +89,7 @@ def downloadReport(request,hid):
     h = History.objects.get(id=int(hid))
     if not h:
         return JsonResponse({'status':'error','msg':'no such report'})
-        
+    #send the file chunk by chunk, so we can handle the big file    
     def file_iterator(file_name, chunk_size=512):
         with open(file_name) as f:
             while True:

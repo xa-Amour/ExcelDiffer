@@ -4,33 +4,55 @@
 
 {% block script %}
 	<script src="http://apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script>
-	    	$.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
-	    	//fomat json
-	    	function syntaxHighlight(json) {
-	    	    if (typeof json != 'string') {
-	    	        json = JSON.stringify(json, undefined, 2);
-	    	    }
-	    	    json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
-	    	    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
-	    	        var cls = 'number';
-	    	        if (/^"/.test(match)) {
-	    	            if (/:$/.test(match)) {
-	    	                cls = 'key';
-	    	            } else {
-	    	                cls = 'string';
-	    	            }
-	    	        } else if (/true|false/.test(match)) {
-	    	            cls = 'boolean';
-	    	        } else if (/null/.test(match)) {
-	    	            cls = 'null';
-	    	        }
-	    	        return '<span class="' + cls + '">' + match + '</span>';
-	    	    });
-	    	}
-	    	
-	    	//post get report
-	    function diff() {
+	<script src="../../static/bundle.js"></script>
+	 <script>
+        $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+        //fomat json
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+
+        var allData = null;
+        function getData(index) {
+          //index = 0: Add; index = 1: delete; index = 2: modify
+          switch(index){
+            case 0:
+              return allData.A;
+            case 1:
+              return allData.D;
+            case 2:
+              return allData.E;
+            default:
+              return [];
+          }
+        }
+
+        function changeData(index) {
+          var newList = getData(index);
+          window.renderData(newList, changeData);
+        }
+        
+       //post get report
+      function diff() {
              var formData = new FormData();
              formData.append("excel_old", document.getElementById("excel_old").files[0]);
              formData.append("excel_new", document.getElementById("excel_new").files[0]); 
@@ -43,25 +65,25 @@
                  processData: false,
                  
                  success: function (data) {
-                     if (data.status == "success") {	 	
-                     	$('#result').html(syntaxHighlight(data.report));
-                     	$('#brief').html(data.brief);
-                     	var url = '/downloadReport/'+data.hid;
-                     	$('#dl').attr('href',url).show();
+                     if (data.status == "success") {    
+                      //$('#result').html(syntaxHighlight(data));
+                      $('#brief').html(data.brief);
+                      var url = '/downloadReport/'+data.hid;
+                      $('#dl').attr('href',url).show();
+                      allData = data.result;
+                      window.renderData(data.result.A,changeData);
                      }
                      if (data.status == "error") {
-                     	$('#result').html(data.msg);
+                      $('#result').html(data.msg);
                      }
                  },
                  error: function () {
-                 	$('#result').html("fail！");
+                  $('#result').html("fail！");
                  }
              });
-          }
-
-
-		
+          }    
     </script>
+	
 {% endblock %}
 
 {% block body %}
@@ -77,9 +99,17 @@
    		</center> 
    		<br/> 		
    	</form>
-   	<p><a id='dl' style="display:none">下载完整报告</a></p> 
+   	
    	<p><span id='brief'></span></p>
-   	<p><pre id='result'></pre></p>
-   	<p><a href='/listHistory/'>查看历史记录</a></p>
+   	<!--  <p><pre id='result'></pre></p>-->
+   	<p><a id='dl' style="display:none">下载完整报告</a></p> 
+    <div id="app"></div>
+    <p><a href='/listHistory/'>查看历史记录</a></p>
+    
+    
+    
+   
 
 {% endblock %}
+
+

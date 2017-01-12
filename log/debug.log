@@ -1,6 +1,0 @@
-[DEBUG] 2017-01-11 09:44:32,251 /Users/zing/Documents/workspace/ExcelDiffer/ExcelDifferApp/views.py views.py views index 15: request for index
-[DEBUG] 2017-01-11 09:44:33,224 /Users/zing/Documents/workspace/ExcelDiffer/ExcelDifferApp/views.py views.py views index 15: request for index
-[DEBUG] 2017-01-11 09:44:45,783 /Users/zing/Documents/workspace/ExcelDiffer/ExcelDifferApp/views.py views.py views diff 51: upload:oldexcel.xlsx and newexcel.xlsx
-[DEBUG] 2017-01-11 09:44:49,989 /Users/zing/Documents/workspace/ExcelDiffer/ExcelDifferApp/views.py views.py views downloadReport 85: request for downloadReport: 27
-[DEBUG] 2017-01-11 09:44:58,462 /Users/zing/Documents/workspace/ExcelDiffer/ExcelDifferApp/views.py views.py views listHistory 19: request for listHistory
-[DEBUG] 2017-01-11 09:45:01,180 /Users/zing/Documents/workspace/ExcelDiffer/ExcelDifferApp/views.py views.py views downloadReport 85: request for downloadReport: 27
