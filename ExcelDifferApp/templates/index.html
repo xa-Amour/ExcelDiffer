@@ -32,8 +32,10 @@
 
 
         var allData = null;
+        var lastIndex = 0;
         function getData(index) {
           //index = 0: Add; index = 1: delete; index = 2: modify
+          lastIndex = index;
           switch(index){
             case 0:
               return allData.A;
@@ -56,7 +58,7 @@
              var formData = new FormData();
              formData.append("excel_old", document.getElementById("excel_old").files[0]);
              formData.append("excel_new", document.getElementById("excel_new").files[0]); 
-             $('#result').html('上传中...');
+             $('#result').html('对比中...');
              $.ajax({
                  url: "/diff/",
                  type: "POST",
@@ -67,11 +69,12 @@
                  success: function (data) {
                      if (data.status == "success") {    
                       //$('#result').html(syntaxHighlight(data));
+                      $('#result').html('');
                       $('#brief').html(data.brief);
                       var url = '/downloadReport/'+data.hid;
                       $('#dl').attr('href',url).show();
                       allData = data.result;
-                      window.renderData(data.result.A,changeData);
+                      window.renderData(getData(lastIndex),changeData);
                      }
                      if (data.status == "error") {
                       $('#result').html(data.msg);
@@ -100,8 +103,9 @@
    		<br/> 		
    	</form>
    	
+   	<p><pre id='result'></pre></p>
    	<p><span id='brief'></span></p>
-   	<!--  <p><pre id='result'></pre></p>-->
+   	
    	<p><a id='dl' style="display:none">下载完整报告</a></p> 
     <div id="app"></div>
     <p><a href='/listHistory/'>查看历史记录</a></p>

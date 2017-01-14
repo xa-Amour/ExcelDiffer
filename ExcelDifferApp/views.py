@@ -68,7 +68,8 @@ def diff(request):
         
         try:
             #do diff
-            report = differ.excelDiffer(path_old,path_new)
+            #report = differ.excelDiffer(path_old,path_new)
+            report = differ.diff(path_old,path_new)
             brief = util.getBriefReport(report)
             #save history to db
             History(name = shortName).save()
