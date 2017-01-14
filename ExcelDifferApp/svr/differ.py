@@ -120,74 +120,74 @@ def sheetDiff(data_old, data_new):
     return finalReport
                   
 
-def excelDiffer(excel_old,excel_new):
-    data_old = reader.excelReader(excel_old)
-    data_new = reader.excelReader(excel_new)
-    finalReport = sheetDiff(data_old, data_new)
-    for sheetReport in finalReport['E']:
-        sheetName,diffPath = sheetReport['sheet_name'],sheetReport['edit_path']
-        sheet_old,sheet_new = data_old[sheetName],data_new[sheetName]
-
-        #diff row
-        report = diffRows(sheet_old,sheet_new)
-        #thin
-        thin_old = [sheet_old[i][::] for i in range(len(sheet_old))]
-        thin_new = [sheet_new[i][::] for i in range(len(sheet_new))]
-        of = 0
-        for op,index in report[1]:
-            if op == 'D':
-                del thin_old[index-of]
-                of += 1
-            elif op == 'A':
-                del thin_new[index-of]
-        
-        #fat
-        of,l_o,l_n = 0,len(sheet_old[0]),len(sheet_new[0])
-        for op,index in report[1]:
-            if op == 'D':
-                sheet_new.insert(index+of,['*']*l_n)
-                diffPath['D_row'].append(index+of) 
-            elif op == 'A':
-                sheet_old.insert(index+of,['*']*l_o)
-                diffPath['A_row'].append(index+of) 
-                of += 1
-        
-        #T tansform
-        sheet_old = map(list,zip(*sheet_old))
-        sheet_new = map(list,zip(*sheet_new))
-        thin_old = map(list,zip(*thin_old))
-        thin_new = map(list,zip(*thin_new))
-
-        #diff col
-        #report = diffRows(sheet_old,sheet_new)
-        report = diffRows(thin_old,thin_new)
-        #fat again
-        of,l_o,l_n = 0,len(sheet_old[0]),len(sheet_new[0])
-        for op,index in report[1]:
-            if op == 'D':
-                sheet_new.insert(index+of,['*']*l_n)
-                diffPath['D_col'].append(index+of) 
-            elif op == 'A':
-                sheet_old.insert(index+of,['*']*l_o)
-                diffPath['A_col'].append(index+of) 
-                of += 1
-
-        #T tansform back
-        sheet_old = map(list,zip(*sheet_old))
-        sheet_new = map(list,zip(*sheet_new))
-
-        #diff cell
-        for i in range(len(sheet_old)):
-            for j in range(len(sheet_old[0])):
-                if sheet_old[i][j] == '*' or sheet_new[i][j] == '*' or sheet_old[i][j] == sheet_new[i][j]:
-                    pass
-                else:
-                    diffPath['cell'].append([i,j]) 
-        #sheetReport = [sheetName,diffPath,sheet_old(fat),sheet_new(fat)]
-        sheetReport['old_data'] = sheet_old
-        sheetReport['new_data'] = sheet_new
-        
-    return finalReport
+# def excelDiffer(excel_old,excel_new):
+#     data_old = reader.excelReader(excel_old)
+#     data_new = reader.excelReader(excel_new)
+#     finalReport = sheetDiff(data_old, data_new)
+#     for sheetReport in finalReport['E']:
+#         sheetName,diffPath = sheetReport['sheet_name'],sheetReport['edit_path']
+#         sheet_old,sheet_new = data_old[sheetName],data_new[sheetName]
+# 
+#         #diff row
+#         report = diffRows(sheet_old,sheet_new)
+#         #thin
+#         thin_old = [sheet_old[i][::] for i in range(len(sheet_old))]
+#         thin_new = [sheet_new[i][::] for i in range(len(sheet_new))]
+#         of = 0
+#         for op,index in report[1]:
+#             if op == 'D':
+#                 del thin_old[index-of]
+#                 of += 1
+#             elif op == 'A':
+#                 del thin_new[index-of]
+#         
+#         #fat
+#         of,l_o,l_n = 0,len(sheet_old[0]),len(sheet_new[0])
+#         for op,index in report[1]:
+#             if op == 'D':
+#                 sheet_new.insert(index+of,['*']*l_n)
+#                 diffPath['D_row'].append(index+of) 
+#             elif op == 'A':
+#                 sheet_old.insert(index+of,['*']*l_o)
+#                 diffPath['A_row'].append(index+of) 
+#                 of += 1
+#         
+#         #T tansform
+#         sheet_old = map(list,zip(*sheet_old))
+#         sheet_new = map(list,zip(*sheet_new))
+#         thin_old = map(list,zip(*thin_old))
+#         thin_new = map(list,zip(*thin_new))
+# 
+#         #diff col
+#         #report = diffRows(sheet_old,sheet_new)
+#         report = diffRows(thin_old,thin_new)
+#         #fat again
+#         of,l_o,l_n = 0,len(sheet_old[0]),len(sheet_new[0])
+#         for op,index in report[1]:
+#             if op == 'D':
+#                 sheet_new.insert(index+of,['*']*l_n)
+#                 diffPath['D_col'].append(index+of) 
+#             elif op == 'A':
+#                 sheet_old.insert(index+of,['*']*l_o)
+#                 diffPath['A_col'].append(index+of) 
+#                 of += 1
+# 
+#         #T tansform back
+#         sheet_old = map(list,zip(*sheet_old))
+#         sheet_new = map(list,zip(*sheet_new))
+# 
+#         #diff cell
+#         for i in range(len(sheet_old)):
+#             for j in range(len(sheet_old[0])):
+#                 if sheet_old[i][j] == '*' or sheet_new[i][j] == '*' or sheet_old[i][j] == sheet_new[i][j]:
+#                     pass
+#                 else:
+#                     diffPath['cell'].append([i,j]) 
+#         #sheetReport = [sheetName,diffPath,sheet_old(fat),sheet_new(fat)]
+#         sheetReport['old_data'] = sheet_old
+#         sheetReport['new_data'] = sheet_new
+#         
+#     return finalReport
 
 
 
@@ -196,7 +196,7 @@ def diff(excel_old,excel_new):
     data_new = reader.excelReader(excel_new)
     finalReport = sheetDiff(data_old, data_new)
     for sheetReport in finalReport['E']:
-        sheetName,diffPath = sheetReport['sheet_name'],sheetReport['edit_path']
+        sheetName = sheetReport['sheet_name']
         row_old,row_new = data_old[sheetName],data_new[sheetName]
         col_old,col_new = map(list,zip(*row_old)),map(list,zip(*row_new))
         row_dis,row_sheetReport = excelDiffer2(sheetName,row_old, row_new,('row','col'))
@@ -219,7 +219,6 @@ def excelDiffer2(sheetName,sheet_old,sheet_new,type):
                  'new_data':None}
     diffPath = sheetReport['edit_path']
         
-
     #diff row
     report = diffRows(sheet_old,sheet_new)
     #thin
@@ -236,7 +235,7 @@ def excelDiffer2(sheetName,sheet_old,sheet_new,type):
             dis += len(thin_new[index-of])
             del thin_new[index-of]
 
-    #fat
+    #fat row
     of,l_o,l_n = 0,len(sheet_old[0]),len(sheet_new[0])
     for op,index in report[1]:
         if op == 'D':
@@ -246,6 +245,8 @@ def excelDiffer2(sheetName,sheet_old,sheet_new,type):
             sheet_old.insert(index+of,['*']*l_o)
             diffPath['A_'+type[0]].append(index+of) 
             of += 1
+    
+    n_row = len(sheet_old)
     
     #T tansform
     sheet_old = map(list,zip(*sheet_old))
@@ -257,21 +258,37 @@ def excelDiffer2(sheetName,sheet_old,sheet_new,type):
     #report = diffRows(sheet_old,sheet_new)
     report = diffRows(thin_old,thin_new)
 
-    #fat again
-    of,l_o,l_n = 0,len(sheet_old[0]),len(sheet_new[0])
+    #fat col
+    of = 0
     for op,index in report[1]:
         if op == 'D':
             dis += l_o
-            sheet_new.insert(index+of,['*']*l_n)
+            sheet_new.insert(index+of,['*']*n_row)
             diffPath['D_'+type[1]].append(index+of) 
         elif op == 'A':
             dis += l_n
-            sheet_old.insert(index+of,['*']*l_o)
+            sheet_old.insert(index+of,['*']*n_row)
             diffPath['A_'+type[1]].append(index+of) 
             of += 1
-
+    
+    n_col = max(len(sheet_old),len(sheet_new))
     #T tansform back
-    if type == ('row','col'):
+    sheet_old = map(list,zip(*sheet_old))
+    sheet_new = map(list,zip(*sheet_new))
+    
+    #super fat
+    for i in range(n_row):
+        if len(sheet_old[i]) < n_col:
+            if sheet_old[i].count('*') == len(sheet_old[i]):
+                sheet_old[i] = ['*']*n_col
+            else:
+                sheet_old[i].extend(['']*(n_col-len(sheet_old[i])))
+        if len(sheet_new[i]) < n_col:
+            if sheet_new[i].count('*') == len(sheet_new[i]):
+                sheet_new[i] = ['*']*n_col
+            else:
+                sheet_new[i].extend(['']*(n_col-len(sheet_new[i])))
+    if type == ('col','row'):
         sheet_old = map(list,zip(*sheet_old))
         sheet_new = map(list,zip(*sheet_new))
 
@@ -291,5 +308,5 @@ def excelDiffer2(sheetName,sheet_old,sheet_new,type):
 
 
 if __name__ =="__main__": 
-    res = excelDiffer("upload/test1.xlsx","upload/test2.xlsx")
+    res = diff("upload/test1.xlsx","upload/test2.xlsx")
     print  res['E'][0]['edit_path']
